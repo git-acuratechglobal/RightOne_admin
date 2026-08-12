@@ -36,15 +36,11 @@ class AppLogo extends StatelessWidget {
               children: [
                 const TextSpan(
                   text: 'Right',
-                  style: TextStyle(color: AppColors.textPrimary),
+                  style: TextStyle(color: AppColors.accentMagenta),
                 ),
                 TextSpan(
                   text: 'ONE',
-                  style: TextStyle(
-                    foreground: Paint()
-                      ..shader = AppColors.primaryGradient.createShader(
-                        Rect.fromLTWH(0, 0, wordmarkFontSize * 2.4, wordmarkFontSize),
-                      ),
+                   style: TextStyle(color: AppColors.accentCyan
                   ),
                 ),
               ],
