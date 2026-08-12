@@ -90,7 +90,7 @@ class AppLogoMark extends StatelessWidget {
               ),
             ),
           Image.asset(
-            'assets/images/r1.png',
+            'assets/images/R1.png',
             width: size,
             height: size,
             fit: BoxFit.contain,
