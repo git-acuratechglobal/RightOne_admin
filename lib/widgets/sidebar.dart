@@ -31,13 +31,13 @@ const List<NavGroup> kNavGroups = [
     NavItem('Blocked Users', Icons.block_rounded, '/users/blocked'),
   ]),
   NavGroup('Verification', [
-    NavItem('Pending', Icons.hourglass_empty_rounded, '/verification/pending', badge: 32, badgeColor: AppColors.accentMagenta),
+    NavItem('Pending', Icons.hourglass_empty_rounded, '/verification/pending', badge: 4, badgeColor: AppColors.accentMagenta),
     NavItem('Approved', Icons.check_circle_outline_rounded, '/verification/approved'),
     NavItem('Rejected', Icons.cancel_outlined, '/verification/rejected'),
     NavItem('Documents', Icons.description_outlined, '/verification/documents'),
   ]),
   NavGroup('Moderation', [
-    NavItem('Reports', Icons.flag_outlined, '/reports', badge: 63, badgeColor: AppColors.danger),
+    NavItem('Reports', Icons.flag_outlined, '/reports', badge: 6, badgeColor: AppColors.danger),
     NavItem('AI Detection', Icons.psychology_outlined, '/moderation/ai-detection'),
     NavItem('Hidden Profiles', Icons.visibility_off_outlined, '/moderation/hidden-profiles'),
     NavItem('Suspended', Icons.gpp_bad_outlined, '/moderation/suspended'),

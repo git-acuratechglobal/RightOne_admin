@@ -240,8 +240,8 @@ class _DummyNotification {
 
 const _kDummyNotifications = [
   _DummyNotification('New report filed', 'A user reported a profile for spam', Icons.flag_rounded),
-  _DummyNotification('63 reports pending', 'Moderation queue needs review', Icons.shield_outlined),
-  _DummyNotification('32 verifications pending', 'New ID submissions to review', Icons.badge_outlined),
+  _DummyNotification('6 reports pending', 'Moderation queue needs review', Icons.shield_outlined),
+  _DummyNotification('4 verifications pending', 'New ID submissions to review', Icons.badge_outlined),
   _DummyNotification('Revenue milestone', 'Monthly revenue crossed \$12,000', Icons.trending_up_rounded),
   _DummyNotification('New signup spike', '1,256 signups this week', Icons.person_add_alt_1_rounded),
 ];
