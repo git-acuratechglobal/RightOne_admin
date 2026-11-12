@@ -251,7 +251,7 @@ class MockData {
       submittedAgo: '2h ago',
       profileIdLabel: 'RO-100901',
       profilePhotoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&auto=format&fit=crop&q=80',
-      selfieUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80',
+      selfieUrl: 'assets/images/jacob_selfie.jpg',
     ),
     VerificationRecord(
       id: 2,
@@ -259,7 +259,7 @@ class MockData {
       submittedAgo: '5h ago',
       profileIdLabel: 'RO-100902',
       profilePhotoUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&auto=format&fit=crop&q=80',
-      selfieUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80',
+      selfieUrl: 'assets/images/isabella_selfie.jpg',
     ),
     VerificationRecord(
       id: 3,
@@ -267,7 +267,7 @@ class MockData {
       submittedAgo: '8h ago',
       profileIdLabel: 'RO-100903',
       profilePhotoUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=600&auto=format&fit=crop&q=80',
-      selfieUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&auto=format&fit=crop&q=80',
+      selfieUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80',
     ),
     VerificationRecord(
       id: 4,
@@ -275,7 +275,7 @@ class MockData {
       submittedAgo: '12h ago',
       profileIdLabel: 'RO-100904',
       profilePhotoUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600&auto=format&fit=crop&q=80',
-      selfieUrl: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600&auto=format&fit=crop&q=80',
+      selfieUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80',
     ),
   ];
 
