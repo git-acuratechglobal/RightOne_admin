@@ -43,6 +43,9 @@ class AdminStore extends ChangeNotifier {
 
   String reportStatus(ReportRecord r) => _reportStatus[r.id] ?? 'Open';
 
+  int get pendingReportsCount =>
+      MockData.reports.where((r) => reportStatus(r) == 'Open').length;
+
   void warnFromReport(ReportRecord r) {
     _reportStatus[r.id] = 'Warned';
     notifyListeners();
@@ -64,6 +67,9 @@ class AdminStore extends ChangeNotifier {
   final Map<int, String> _verificationStatus = {};
 
   String verificationStatus(VerificationRecord v) => _verificationStatus[v.id] ?? 'Pending';
+
+  int get pendingVerificationsCount =>
+      MockData.verifications.where((v) => verificationStatus(v) == 'Pending').length;
 
   void approveVerification(VerificationRecord v) {
     _verificationStatus[v.id] = 'Approved';

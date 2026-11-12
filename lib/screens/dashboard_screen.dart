@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../data/admin_store.dart';
 import '../data/mock_data.dart';
 import '../theme/app_theme.dart';
 import '../utils/format.dart';
@@ -519,67 +520,84 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // ---- Pending Verification -------------------------------------------
   Widget _pendingVerificationCard() {
-    return DashedContainer(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _cardHeader('Pending Verification', viewAllRoute: '/verification/pending'),
-          const SizedBox(height: 12),
-          for (final v in MockData.pendingVerifications)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Row(
-                children: [
-                  ClipOval(
-                    child: Container(
-                      width: 32,
-                      height: 32,
-                      color: AppColors.surfaceAlt,
-                      child: (v.profilePhotoUrl != null && v.profilePhotoUrl!.isNotEmpty)
-                          ? Image.network(
-                              v.profilePhotoUrl!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Center(
-                                child: Text(v.name.substring(0, 1), style: const TextStyle(color: AppColors.textPrimary, fontSize: 13)),
-                              ),
-                            )
-                          : Center(
-                              child: Text(v.name.substring(0, 1), style: const TextStyle(color: AppColors.textPrimary, fontSize: 13)),
-                            ),
-                    ),
+    return ListenableBuilder(
+      listenable: adminStore,
+      builder: (context, _) {
+        final pending = MockData.verifications
+            .where((v) => adminStore.verificationStatus(v) == 'Pending')
+            .toList();
+
+        return DashedContainer(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _cardHeader('Pending Verification', viewAllRoute: '/verification/pending'),
+              const SizedBox(height: 12),
+              if (pending.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: Text('No pending verifications', style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(v.name, style: const TextStyle(color: AppColors.textPrimary, fontSize: 13, fontWeight: FontWeight.w600)),
-                        Text('Submitted ${v.submittedAgo}', style: const TextStyle(color: AppColors.textMuted, fontSize: 11.5)),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceAlt,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.borderStrong),
-                    ),
+                )
+              else
+                for (final v in pending)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Row(
-                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.badge_outlined, size: 13, color: AppColors.textSecondary),
-                        const SizedBox(width: 4),
-                        Text('${v.documentCount}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                        ClipOval(
+                          child: Container(
+                            width: 32,
+                            height: 32,
+                            color: AppColors.surfaceAlt,
+                            child: (v.profilePhotoUrl != null && v.profilePhotoUrl!.isNotEmpty)
+                                ? Image.network(
+                                    v.profilePhotoUrl!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => Center(
+                                      child: Text(v.name.substring(0, 1), style: const TextStyle(color: AppColors.textPrimary, fontSize: 13)),
+                                    ),
+                                  )
+                                : Center(
+                                    child: Text(v.name.substring(0, 1), style: const TextStyle(color: AppColors.textPrimary, fontSize: 13)),
+                                  ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(v.name, style: const TextStyle(color: AppColors.textPrimary, fontSize: 13, fontWeight: FontWeight.w600)),
+                              Text('Submitted ${v.submittedAgo}', style: const TextStyle(color: AppColors.textMuted, fontSize: 11.5)),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceAlt,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppColors.borderStrong),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.badge_outlined, size: 13, color: AppColors.textSecondary),
+                              SizedBox(width: 4),
+                              Text('2', style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                ],
-              ),
-            ),
-        ],
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -807,84 +825,89 @@ class _StatRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cards = [
-      _MiniStatCard(
-        icon: Icons.people_alt_rounded,
-        iconColor: AppColors.accentMagenta,
-        label: 'Total Users',
-        value: formatInt(MockData.totalUsers),
-        delta: '↑ 8.4% from last month',
-        deltaPositive: true,
-        sparkColor: AppColors.accentMagenta,
-        sparkValues: MockData.userGrowthTotal,
-      ),
-      _MiniStatCard(
-        icon: Icons.bolt_rounded,
-        iconColor: AppColors.accentCyan,
-        label: 'Active Today',
-        value: formatInt(MockData.activeToday),
-        delta: '↑ 12.6% from last week',
-        deltaPositive: true,
-        sparkColor: AppColors.accentCyan,
-        sparkValues: const [4, 5, 4.5, 6, 6.5, 6.2, 7, 7.4],
-      ),
-      _MiniStatCard(
-        icon: Icons.person_add_alt_1_rounded,
-        iconColor: AppColors.accentMagenta,
-        label: 'New registrations',
-        value: formatInt(MockData.newSignups),
-        delta: '↑ 14.2% from last week',
-        deltaPositive: true,
-        sparkColor: AppColors.accentMagenta,
-        sparkValues: const [3, 4, 3.6, 4.2, 4.8, 4.4, 5, 5.4],
-      ),
-      _MiniStatCard(
-        icon: Icons.shield_outlined,
-        iconColor: const Color(0xFF8A6CFF),
-        label: 'Reports',
-        value: formatInt(MockData.reportsCount),
-        delta: '↓ 4.3% from last week',
-        deltaPositive: false,
-        sparkColor: const Color(0xFF8A6CFF),
-        sparkValues: const [8, 7.4, 7.8, 7, 6.6, 6.9, 6.3, 6],
-      ),
-      _MiniStatCard(
-        icon: Icons.attach_money_rounded,
-        iconColor: AppColors.accentCyan,
-        label: 'Revenue',
-        value: '\$${formatInt(MockData.revenue)}',
-        delta: '↑ 18.7% from last month',
-        deltaPositive: true,
-        sparkColor: AppColors.accentCyan,
-        sparkValues: const [5, 5.6, 6, 6.4, 7, 7.8, 8.4, 9.2],
-      ),
-    ];
+    return ListenableBuilder(
+      listenable: adminStore,
+      builder: (context, _) {
+        final cards = [
+          _MiniStatCard(
+            icon: Icons.people_alt_rounded,
+            iconColor: AppColors.accentMagenta,
+            label: 'Total Users',
+            value: formatInt(MockData.totalUsers),
+            delta: '↑ 8.4% from last month',
+            deltaPositive: true,
+            sparkColor: AppColors.accentMagenta,
+            sparkValues: MockData.userGrowthTotal,
+          ),
+          _MiniStatCard(
+            icon: Icons.bolt_rounded,
+            iconColor: AppColors.accentCyan,
+            label: 'Active Today',
+            value: formatInt(MockData.activeToday),
+            delta: '↑ 12.6% from last week',
+            deltaPositive: true,
+            sparkColor: AppColors.accentCyan,
+            sparkValues: const [4, 5, 4.5, 6, 6.5, 6.2, 7, 7.4],
+          ),
+          _MiniStatCard(
+            icon: Icons.person_add_alt_1_rounded,
+            iconColor: AppColors.accentMagenta,
+            label: 'New registrations',
+            value: formatInt(MockData.newSignups),
+            delta: '↑ 14.2% from last week',
+            deltaPositive: true,
+            sparkColor: AppColors.accentMagenta,
+            sparkValues: const [3, 4, 3.6, 4.2, 4.8, 4.4, 5, 5.4],
+          ),
+          _MiniStatCard(
+            icon: Icons.shield_outlined,
+            iconColor: const Color(0xFF8A6CFF),
+            label: 'Reports',
+            value: formatInt(adminStore.pendingReportsCount),
+            delta: '↓ 4.3% from last week',
+            deltaPositive: false,
+            sparkColor: const Color(0xFF8A6CFF),
+            sparkValues: const [8, 7.4, 7.8, 7, 6.6, 6.9, 6.3, 6],
+          ),
+          _MiniStatCard(
+            icon: Icons.attach_money_rounded,
+            iconColor: AppColors.accentCyan,
+            label: 'Revenue',
+            value: '\$${formatInt(MockData.revenue)}',
+            delta: '↑ 18.7% from last month',
+            deltaPositive: true,
+            sparkColor: AppColors.accentCyan,
+            sparkValues: const [5, 5.6, 6, 6.4, 7, 7.8, 8.4, 9.2],
+          ),
+        ];
 
-    if (isNarrow) {
-      return Column(
-        children: [
-          for (int i = 0; i < cards.length; i++) ...[
-            cards[i],
-            if (i != cards.length - 1) const SizedBox(height: 14),
-          ],
-        ],
-      );
-    }
+        if (isNarrow) {
+          return Column(
+            children: [
+              for (int i = 0; i < cards.length; i++) ...[
+                cards[i],
+                if (i != cards.length - 1) const SizedBox(height: 14),
+              ],
+            ],
+          );
+        }
 
-    return LayoutBuilder(builder: (context, constraints) {
-      final perRow = constraints.maxWidth < 1180 ? 3 : 5;
-      return Wrap(
-        spacing: 16,
-        runSpacing: 16,
-        children: [
-          for (final c in cards)
-            SizedBox(
-              width: (constraints.maxWidth - (perRow - 1) * 16) / perRow,
-              child: c,
-            ),
-        ],
-      );
-    });
+        return LayoutBuilder(builder: (context, constraints) {
+          final perRow = constraints.maxWidth < 1180 ? 3 : 5;
+          return Wrap(
+            spacing: 16,
+            runSpacing: 16,
+            children: [
+              for (final c in cards)
+                SizedBox(
+                  width: (constraints.maxWidth - (perRow - 1) * 16) / perRow,
+                  child: c,
+                ),
+            ],
+          );
+        });
+      },
+    );
   }
 }
 

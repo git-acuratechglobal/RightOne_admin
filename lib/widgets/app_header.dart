@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../data/admin_store.dart';
 import '../data/auth_state.dart';
 import '../theme/app_theme.dart';
 import '../utils/format.dart';
@@ -238,58 +239,63 @@ class _DummyNotification {
   const _DummyNotification(this.title, this.subtitle, this.icon);
 }
 
-const _kDummyNotifications = [
-  _DummyNotification('New report filed', 'A user reported a profile for spam', Icons.flag_rounded),
-  _DummyNotification('6 reports pending', 'Moderation queue needs review', Icons.shield_outlined),
-  _DummyNotification('4 verifications pending', 'New ID submissions to review', Icons.badge_outlined),
-  _DummyNotification('Revenue milestone', 'Monthly revenue crossed \$12,000', Icons.trending_up_rounded),
-  _DummyNotification('New signup spike', '1,256 signups this week', Icons.person_add_alt_1_rounded),
-];
-
 class _NotificationsButton extends StatelessWidget {
   const _NotificationsButton();
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<void>(
-      color: AppColors.surface,
-      offset: const Offset(0, 46),
-      shape: RoundedRectangleBorder(
-        side: const BorderSide(color: AppColors.borderStrong),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      itemBuilder: (context) => [
-        const PopupMenuItem<void>(
-          enabled: false,
-          child: Text(
-            'Notifications',
-            style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w700, fontSize: 13),
+    return ListenableBuilder(
+      listenable: adminStore,
+      builder: (context, _) {
+        final notifications = [
+          const _DummyNotification('New report filed', 'A user reported a profile for spam', Icons.flag_rounded),
+          _DummyNotification('${adminStore.pendingReportsCount} reports pending', 'Moderation queue needs review', Icons.shield_outlined),
+          _DummyNotification('${adminStore.pendingVerificationsCount} verifications pending', 'New ID submissions to review', Icons.badge_outlined),
+          const _DummyNotification('Revenue milestone', 'Monthly revenue crossed \$12,000', Icons.trending_up_rounded),
+          const _DummyNotification('New signup spike', '1,256 signups this week', Icons.person_add_alt_1_rounded),
+        ];
+
+        return PopupMenuButton<void>(
+          color: AppColors.surface,
+          offset: const Offset(0, 46),
+          shape: RoundedRectangleBorder(
+            side: const BorderSide(color: AppColors.borderStrong),
+            borderRadius: BorderRadius.circular(12),
           ),
-        ),
-        for (final n in _kDummyNotifications)
-          PopupMenuItem<void>(
-            child: SizedBox(
-              width: 260,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(n.icon, size: 16, color: AppColors.accentMagenta),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(n.title, style: const TextStyle(color: AppColors.textPrimary, fontSize: 12.5, fontWeight: FontWeight.w600)),
-                        Text(n.subtitle, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
-                      ],
-                    ),
-                  ),
-                ],
+          itemBuilder: (context) => [
+            const PopupMenuItem<void>(
+              enabled: false,
+              child: Text(
+                'Notifications',
+                style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w700, fontSize: 13),
               ),
             ),
-          ),
-      ],
-      child: const _IconGhostButtonStatic(icon: Icons.notifications_none_rounded, badge: 5),
+            for (final n in notifications)
+              PopupMenuItem<void>(
+                child: SizedBox(
+                  width: 260,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(n.icon, size: 16, color: AppColors.accentMagenta),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(n.title, style: const TextStyle(color: AppColors.textPrimary, fontSize: 12.5, fontWeight: FontWeight.w600)),
+                            Text(n.subtitle, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+          child: const _IconGhostButtonStatic(icon: Icons.notifications_none_rounded, badge: 5),
+        );
+      },
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../data/admin_store.dart';
 import '../theme/app_theme.dart';
 import 'dashed_container.dart';
 
@@ -31,13 +32,13 @@ const List<NavGroup> kNavGroups = [
     NavItem('Blocked Users', Icons.block_rounded, '/users/blocked'),
   ]),
   NavGroup('Verification', [
-    NavItem('Pending', Icons.hourglass_empty_rounded, '/verification/pending', badge: 4, badgeColor: AppColors.accentMagenta),
+    NavItem('Pending', Icons.hourglass_empty_rounded, '/verification/pending', badgeColor: AppColors.accentMagenta),
     NavItem('Approved', Icons.check_circle_outline_rounded, '/verification/approved'),
     NavItem('Rejected', Icons.cancel_outlined, '/verification/rejected'),
     NavItem('Documents', Icons.description_outlined, '/verification/documents'),
   ]),
   NavGroup('Moderation', [
-    NavItem('Reports', Icons.flag_outlined, '/reports', badge: 6, badgeColor: AppColors.danger),
+    NavItem('Reports', Icons.flag_outlined, '/reports', badgeColor: AppColors.danger),
     NavItem('AI Detection', Icons.psychology_outlined, '/moderation/ai-detection'),
     NavItem('Hidden Profiles', Icons.visibility_off_outlined, '/moderation/hidden-profiles'),
     NavItem('Suspended', Icons.gpp_bad_outlined, '/moderation/suspended'),
@@ -75,77 +76,82 @@ class Sidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DashedContainer(
-      sides: const {DashedSide.right},
-      padding: EdgeInsets.zero,
-      child: SizedBox(
-        width: 240,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 8),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                children: [
-                  for (final group in kNavGroups) ...[
-                    if (group.title != null) _GroupLabel(group.title!),
-                    for (final item in group.items)
-                      _SidebarTile(
-                        item: item,
-                        selected: currentRoute == item.route,
-                        onNavigate: onNavigate,
-                      ),
-                    const SizedBox(height: 6),
-                  ],
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: DashedContainer(
-                backgroundColor: AppColors.surfaceAlt,
-                padding: const EdgeInsets.all(14),
-                radius: 14,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return ListenableBuilder(
+      listenable: adminStore,
+      builder: (context, _) {
+        return DashedContainer(
+          sides: const {DashedSide.right},
+          padding: EdgeInsets.zero,
+          child: SizedBox(
+            width: 240,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 8),
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    children: [
+                      for (final group in kNavGroups) ...[
+                        if (group.title != null) _GroupLabel(group.title!),
+                        for (final item in group.items)
+                          _SidebarTile(
+                            item: item,
+                            selected: currentRoute == item.route,
+                            onNavigate: onNavigate,
+                          ),
+                        const SizedBox(height: 6),
+                      ],
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: DashedContainer(
+                    backgroundColor: AppColors.surfaceAlt,
+                    padding: const EdgeInsets.all(14),
+                    radius: 14,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Get Started',
-                          style: TextStyle(
-                            color: AppColors.textPrimary,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
+                        const Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Get Started',
+                              style: TextStyle(
+                                color: AppColors.textPrimary,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.accentMagenta),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          '3/6 steps completed',
+                          style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+                        ),
+                        const SizedBox(height: 10),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: const LinearProgressIndicator(
+                            value: 0.5,
+                            minHeight: 6,
+                            backgroundColor: AppColors.border,
+                            valueColor: AlwaysStoppedAnimation(AppColors.accentMagenta),
                           ),
                         ),
-                        Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.accentMagenta),
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      '3/6 steps completed',
-                      style: TextStyle(color: AppColors.textMuted, fontSize: 11),
-                    ),
-                    const SizedBox(height: 10),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: const LinearProgressIndicator(
-                        value: 0.5,
-                        minHeight: 6,
-                        backgroundColor: AppColors.border,
-                        valueColor: AlwaysStoppedAnimation(AppColors.accentMagenta),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -178,8 +184,21 @@ class _SidebarTile extends StatelessWidget {
   final bool selected;
   final VoidCallback? onNavigate;
 
+  int? get _resolvedBadge {
+    if (item.route == '/verification/pending') {
+      final count = adminStore.pendingVerificationsCount;
+      return count > 0 ? count : null;
+    }
+    if (item.route == '/reports') {
+      final count = adminStore.pendingReportsCount;
+      return count > 0 ? count : null;
+    }
+    return item.badge;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final badgeValue = _resolvedBadge;
     return InkWell(
       onTap: () {
         context.go(item.route);
@@ -224,7 +243,7 @@ class _SidebarTile extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            if (item.badge != null) ...[
+            if (badgeValue != null) ...[
               const SizedBox(width: 6),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
@@ -233,7 +252,7 @@ class _SidebarTile extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  '${item.badge}',
+                  '$badgeValue',
                   style: TextStyle(
                     color: item.badgeColor ?? AppColors.accentMagenta,
                     fontSize: 11,
