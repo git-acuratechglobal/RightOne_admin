@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import 'dashed_container.dart';
 
-class AdminTable extends StatelessWidget {
+class AdminTable extends StatefulWidget {
   const AdminTable({
     super.key,
     required this.columns,
     required this.rows,
     this.columnFlex,
     this.columnGap = 12,
-    this.minColumnWidth = 92,
+    this.minColumnWidth = 84,
   });
 
   final List<String> columns;
@@ -19,20 +19,37 @@ class AdminTable extends StatelessWidget {
 
   /// Minimum width (px) reserved per flex unit. On a screen too narrow to
   /// fit every column at this minimum, the table switches to horizontal
-  /// scrolling instead of squeezing columns down into unreadable slivers
-  /// (which is what previously made header/cell text wrap letter-by-letter
-  /// on phones).
+  /// scrolling with drag, trackpad, and scrollbar support.
   final double minColumnWidth;
 
   @override
+  State<AdminTable> createState() => _AdminTableState();
+}
+
+class _AdminTableState extends State<AdminTable> {
+  late final ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final flex = columnFlex ?? List.filled(columns.length, 1);
+    final flex = widget.columnFlex ?? List.filled(widget.columns.length, 1);
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final totalFlex = flex.fold<int>(0, (a, b) => a + b);
-        final gapsWidth = (columns.length - 1) * columnGap;
-        final naturalWidth = totalFlex * minColumnWidth + gapsWidth + 36;
+        final gapsWidth = (widget.columns.length - 1) * widget.columnGap;
+        final naturalWidth = totalFlex * widget.minColumnWidth + gapsWidth + 36;
         final availableWidth = constraints.maxWidth;
         final needsScroll = availableWidth.isFinite && naturalWidth > availableWidth;
 
@@ -45,7 +62,7 @@ class AdminTable extends StatelessWidget {
               children: [
                 _TableRow(
                   cells: [
-                    for (final label in columns)
+                    for (final label in widget.columns)
                       Text(
                         label.toUpperCase(),
                         style: const TextStyle(
@@ -57,17 +74,17 @@ class AdminTable extends StatelessWidget {
                       ),
                   ],
                   flex: flex,
-                  fixedColumnWidth: needsScroll ? minColumnWidth : null,
-                  columnGap: columnGap,
+                  fixedColumnWidth: needsScroll ? widget.minColumnWidth : null,
+                  columnGap: widget.columnGap,
                   showBottomBorder: true,
                 ),
-                for (int r = 0; r < rows.length; r++)
+                for (int r = 0; r < widget.rows.length; r++)
                   _TableRow(
-                    cells: rows[r],
+                    cells: widget.rows[r],
                     flex: flex,
-                    fixedColumnWidth: needsScroll ? minColumnWidth : null,
-                    columnGap: columnGap,
-                    showBottomBorder: r != rows.length - 1,
+                    fixedColumnWidth: needsScroll ? widget.minColumnWidth : null,
+                    columnGap: widget.columnGap,
+                    showBottomBorder: r != widget.rows.length - 1,
                   ),
               ],
             ),
@@ -79,16 +96,63 @@ class AdminTable extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(bottom: 6, left: 2),
-              child: _SwipeHint(),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8, left: 2, right: 2),
+              child: Row(
+                children: [
+                  const _SwipeHint(),
+                  const Spacer(),
+                  _ScrollArrowButton(
+                    icon: Icons.chevron_left_rounded,
+                    tooltip: 'Scroll left',
+                    onPressed: () {
+                      if (_scrollController.hasClients) {
+                        _scrollController.animateTo(
+                          (_scrollController.offset - 260).clamp(0.0, _scrollController.position.maxScrollExtent),
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.easeOutCubic,
+                        );
+                      }
+                    },
+                  ),
+                  const SizedBox(width: 6),
+                  _ScrollArrowButton(
+                    icon: Icons.chevron_right_rounded,
+                    tooltip: 'Scroll right',
+                    onPressed: () {
+                      if (_scrollController.hasClients) {
+                        _scrollController.animateTo(
+                          (_scrollController.offset + 260).clamp(0.0, _scrollController.position.maxScrollExtent),
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.easeOutCubic,
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
-            Scrollbar(
-              thumbVisibility: true,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.only(bottom: 4),
-                child: content,
+            Theme(
+              data: Theme.of(context).copyWith(
+                scrollbarTheme: ScrollbarThemeData(
+                  thumbColor: WidgetStateProperty.all(AppColors.accentMagenta.withValues(alpha: 0.6)),
+                  trackColor: WidgetStateProperty.all(AppColors.surfaceAlt),
+                  radius: const Radius.circular(8),
+                  thickness: WidgetStateProperty.all(8),
+                ),
+              ),
+              child: Scrollbar(
+                controller: _scrollController,
+                thumbVisibility: true,
+                trackVisibility: true,
+                interactive: true,
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  scrollDirection: Axis.horizontal,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: content,
+                ),
               ),
             ),
           ],
@@ -98,18 +162,50 @@ class AdminTable extends StatelessWidget {
   }
 }
 
+class _ScrollArrowButton extends StatelessWidget {
+  const _ScrollArrowButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.surfaceAlt,
+      borderRadius: BorderRadius.circular(6),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(6),
+        child: Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.border),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Icon(icon, size: 16, color: AppColors.textSecondary),
+        ),
+      ),
+    );
+  }
+}
+
 class _SwipeHint extends StatelessWidget {
   const _SwipeHint();
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return const Row(
       mainAxisSize: MainAxisSize.min,
-      children: const [
+      children: [
         Icon(Icons.swipe_outlined, size: 14, color: AppColors.textSecondary),
         SizedBox(width: 6),
         Text(
-          'Swipe left to see more',
+          'Scroll, drag, or use arrows to see all columns',
           style: TextStyle(
             color: AppColors.textSecondary,
             fontSize: 11,
