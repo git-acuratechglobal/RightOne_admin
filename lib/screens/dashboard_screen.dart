@@ -531,10 +531,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Row(
                 children: [
-                  CircleAvatar(
-                    radius: 16,
-                    backgroundColor: AppColors.surfaceAlt,
-                    child: Text(v.name.substring(0, 1), style: const TextStyle(color: AppColors.textPrimary, fontSize: 13)),
+                  ClipOval(
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      color: AppColors.surfaceAlt,
+                      child: (v.profilePhotoUrl != null && v.profilePhotoUrl!.isNotEmpty)
+                          ? Image.network(
+                              v.profilePhotoUrl!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Center(
+                                child: Text(v.name.substring(0, 1), style: const TextStyle(color: AppColors.textPrimary, fontSize: 13)),
+                              ),
+                            )
+                          : Center(
+                              child: Text(v.name.substring(0, 1), style: const TextStyle(color: AppColors.textPrimary, fontSize: 13)),
+                            ),
+                    ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(

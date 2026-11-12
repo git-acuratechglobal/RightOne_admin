@@ -77,10 +77,38 @@ class VerificationQueueScreen extends StatelessWidget {
               [
                 Row(
                   children: [
-                    CircleAvatar(
-                      radius: 15,
-                      backgroundColor: AppColors.surfaceAlt,
-                      child: Text(v.name.substring(0, 1), style: const TextStyle(color: AppColors.textPrimary, fontSize: 12)),
+                    ClipOval(
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        color: AppColors.surfaceAlt,
+                        child: (v.profilePhotoUrl != null && v.profilePhotoUrl!.isNotEmpty)
+                            ? Image.network(
+                                v.profilePhotoUrl!,
+                                fit: BoxFit.cover,
+                                loadingBuilder: (context, child, progress) {
+                                  if (progress == null) return child;
+                                  return Center(
+                                    child: Text(
+                                      v.name.substring(0, 1),
+                                      style: const TextStyle(color: AppColors.textPrimary, fontSize: 12, fontWeight: FontWeight.w600),
+                                    ),
+                                  );
+                                },
+                                errorBuilder: (_, __, ___) => Center(
+                                  child: Text(
+                                    v.name.substring(0, 1),
+                                    style: const TextStyle(color: AppColors.textPrimary, fontSize: 12, fontWeight: FontWeight.w600),
+                                  ),
+                                ),
+                              )
+                            : Center(
+                                child: Text(
+                                  v.name.substring(0, 1),
+                                  style: const TextStyle(color: AppColors.textPrimary, fontSize: 12, fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                      ),
                     ),
                     const SizedBox(width: 10),
                     Text(v.name, style: const TextStyle(color: AppColors.textPrimary, fontSize: 13, fontWeight: FontWeight.w600)),
@@ -116,27 +144,82 @@ class _VerificationCompareDialog extends StatelessWidget {
       backgroundColor: AppColors.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: AppColors.borderStrong)),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 460),
+        constraints: const BoxConstraints(maxWidth: 500),
         child: Padding(
           padding: const EdgeInsets.all(22),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(record.name, style: const TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w700)),
-              Text('${record.profileIdLabel} · submitted ${record.submittedAgo}', style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
-              const SizedBox(height: 18),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(child: _photoBox('Profile Photo', Icons.account_circle_rounded)),
-                  const SizedBox(width: 12),
-                  Expanded(child: _photoBox('Live Selfie', Icons.camera_alt_rounded)),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(record.name, style: const TextStyle(color: AppColors.textPrimary, fontSize: 17, fontWeight: FontWeight.w700)),
+                        const SizedBox(height: 2),
+                        Text('${record.profileIdLabel} · submitted ${record.submittedAgo}', style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded, color: AppColors.textSecondary, size: 20),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
                 ],
               ),
               const SizedBox(height: 18),
-              const Text(
-                'Compare the live selfie against the profile photo for a facial match before approving.',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 12.5),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _photoBox(
+                      context: context,
+                      label: 'Profile Photo',
+                      subtitle: 'Primary Photo',
+                      imageUrl: record.profilePhotoUrl,
+                      icon: Icons.account_circle_rounded,
+                      badgeColor: AppColors.accentCyan,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: _photoBox(
+                      context: context,
+                      label: 'Live Selfie',
+                      subtitle: 'Live Camera Capture',
+                      imageUrl: record.selfieUrl,
+                      icon: Icons.camera_alt_rounded,
+                      badgeColor: AppColors.accentMagenta,
+                      isSelfie: true,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceAlt,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.shield_outlined, size: 16, color: AppColors.accentCyan),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Compare the live selfie against the profile photo for a facial match before approving.',
+                        style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 20),
               Row(
@@ -146,23 +229,44 @@ class _VerificationCompareDialog extends StatelessWidget {
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: AppColors.danger),
                         foregroundColor: AppColors.danger,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       onPressed: () {
                         adminStore.rejectVerification(record);
                         Navigator.of(context).pop();
                       },
-                      child: const Text('Reject'),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.close_rounded, size: 16),
+                          SizedBox(width: 6),
+                          Text('Reject', style: TextStyle(fontWeight: FontWeight.w600)),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: AppColors.success, foregroundColor: Colors.black),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.success,
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
                       onPressed: () {
                         adminStore.approveVerification(record);
                         Navigator.of(context).pop();
                       },
-                      child: const Text('Approve'),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.check_rounded, size: 16),
+                          SizedBox(width: 6),
+                          Text('Approve', style: TextStyle(fontWeight: FontWeight.w600)),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -174,23 +278,195 @@ class _VerificationCompareDialog extends StatelessWidget {
     );
   }
 
-  Widget _photoBox(String label, IconData icon) {
+  Widget _photoBox({
+    required BuildContext context,
+    required String label,
+    required String subtitle,
+    required String? imageUrl,
+    required IconData icon,
+    required Color badgeColor,
+    bool isSelfie = false,
+  }) {
+    final hasImage = imageUrl != null && imageUrl.isNotEmpty;
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AspectRatio(
-          aspectRatio: 1,
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.surfaceAlt,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
+        MouseRegion(
+          cursor: hasImage ? SystemMouseCursors.click : SystemMouseCursors.basic,
+          child: GestureDetector(
+            onTap: hasImage ? () => _showImagePreview(context, '$label - ${record.name}', imageUrl) : null,
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceAlt,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isSelfie ? AppColors.accentMagenta.withValues(alpha: 0.4) : AppColors.borderStrong,
+                    width: isSelfie ? 1.5 : 1,
+                  ),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (hasImage)
+                      Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            color: AppColors.surfaceAlt,
+                            child: const Center(
+                              child: SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.accentMagenta,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          return Center(
+                            child: Icon(icon, size: 42, color: AppColors.textMuted),
+                          );
+                        },
+                      )
+                    else
+                      Center(
+                        child: Icon(icon, size: 42, color: AppColors.textMuted),
+                      ),
+                    // Badge on top-left
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.75),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: badgeColor.withValues(alpha: 0.6), width: 0.8),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(icon, size: 10, color: badgeColor),
+                            const SizedBox(width: 4),
+                            Text(
+                              label,
+                              style: TextStyle(
+                                color: badgeColor,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    // Fullscreen preview hint on bottom-right
+                    if (hasImage)
+                      Positioned(
+                        bottom: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.65),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.fullscreen_rounded,
+                            size: 14,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
-            child: Icon(icon, size: 40, color: AppColors.textMuted),
           ),
         ),
         const SizedBox(height: 6),
-        Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11.5)),
+        Text(label, style: const TextStyle(color: AppColors.textPrimary, fontSize: 12, fontWeight: FontWeight.w600)),
+        Text(subtitle, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
       ],
+    );
+  }
+
+  void _showImagePreview(BuildContext context, String title, String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(20),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560, maxHeight: 620),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.borderStrong),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close_rounded, color: AppColors.textSecondary, size: 20),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        onPressed: () => Navigator.of(dialogCtx).pop(),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1, color: AppColors.border),
+                Flexible(
+                  child: Container(
+                    color: Colors.black,
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(8),
+                    child: Image.network(
+                      imageUrl,
+                      fit: BoxFit.contain,
+                      loadingBuilder: (ctx, child, progress) {
+                        if (progress == null) return child;
+                        return const Center(
+                          child: CircularProgressIndicator(color: AppColors.accentMagenta),
+                        );
+                      },
+                      errorBuilder: (ctx, err, stack) => const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(32),
+                          child: Icon(Icons.broken_image_rounded, size: 48, color: AppColors.textMuted),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

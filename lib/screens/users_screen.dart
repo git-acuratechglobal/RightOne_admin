@@ -86,12 +86,37 @@ class _UsersScreenState extends State<UsersScreen> {
                   [
                     InkWell(
                       onTap: () => _showProfileDialog(context, user),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
+                      child: Row(
                         children: [
-                          Text(user.name, style: const TextStyle(color: AppColors.textPrimary, fontSize: 13, fontWeight: FontWeight.w600)),
-                          Text(user.email, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                          ClipOval(
+                            child: Container(
+                              width: 30,
+                              height: 30,
+                              color: AppColors.surfaceAlt,
+                              child: (user.avatarUrl != null && user.avatarUrl!.isNotEmpty)
+                                  ? Image.network(
+                                      user.avatarUrl!,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => Center(
+                                        child: Text(user.name.substring(0, 1), style: const TextStyle(color: AppColors.textPrimary, fontSize: 12, fontWeight: FontWeight.w600)),
+                                      ),
+                                    )
+                                  : Center(
+                                      child: Text(user.name.substring(0, 1), style: const TextStyle(color: AppColors.textPrimary, fontSize: 12, fontWeight: FontWeight.w600)),
+                                    ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(user.name, style: const TextStyle(color: AppColors.textPrimary, fontSize: 13, fontWeight: FontWeight.w600)),
+                                Text(user.email, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -230,10 +255,23 @@ class _UserProfileDialog extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  CircleAvatar(
-                    radius: 24,
-                    backgroundColor: AppColors.surfaceAlt,
-                    child: Text(user.name.substring(0, 1), style: const TextStyle(color: AppColors.textPrimary, fontSize: 18)),
+                  ClipOval(
+                    child: Container(
+                      width: 48,
+                      height: 48,
+                      color: AppColors.surfaceAlt,
+                      child: (user.avatarUrl != null && user.avatarUrl!.isNotEmpty)
+                          ? Image.network(
+                              user.avatarUrl!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Center(
+                                child: Text(user.name.substring(0, 1), style: const TextStyle(color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.w700)),
+                              ),
+                            )
+                          : Center(
+                              child: Text(user.name.substring(0, 1), style: const TextStyle(color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.w700)),
+                            ),
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(

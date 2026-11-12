@@ -13,6 +13,7 @@ class AppUser {
   final String phone;
   final String mode; 
   final List<int> karmaHistory;
+  final String? avatarUrl;
 
   const AppUser({
     required this.name,
@@ -29,6 +30,7 @@ class AppUser {
     required this.phone,
     required this.mode,
     required this.karmaHistory,
+    this.avatarUrl,
   });
 }
 
@@ -57,12 +59,16 @@ class VerificationRecord {
   final String name;
   final String submittedAgo;
   final String profileIdLabel;
+  final String? profilePhotoUrl;
+  final String? selfieUrl;
 
   const VerificationRecord({
     required this.id,
     required this.name,
     required this.submittedAgo,
     required this.profileIdLabel,
+    this.profilePhotoUrl,
+    this.selfieUrl,
   });
 }
 
@@ -152,8 +158,9 @@ class VerificationRequest {
   final String name;
   final String submittedAgo;
   final int documentCount;
+  final String? profilePhotoUrl;
 
-  const VerificationRequest(this.name, this.submittedAgo, this.documentCount);
+  const VerificationRequest(this.name, this.submittedAgo, this.documentCount, [this.profilePhotoUrl]);
 }
 
 class NewSignup {
@@ -204,10 +211,10 @@ class MockData {
   ];
 
   static const pendingVerifications = <VerificationRequest>[
-    VerificationRequest('Jacob Jones', '2h ago', 2),
-    VerificationRequest('Isabella Clark', '5h ago', 2),
-    VerificationRequest('Mason White', '8h ago', 2),
-    VerificationRequest('Charlotte Brown', '12h ago', 2),
+    VerificationRequest('Jacob Jones', '2h ago', 2, 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&auto=format&fit=crop&q=80'),
+    VerificationRequest('Isabella Clark', '5h ago', 2, 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&auto=format&fit=crop&q=80'),
+    VerificationRequest('Mason White', '8h ago', 2, 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=500&auto=format&fit=crop&q=80'),
+    VerificationRequest('Charlotte Brown', '12h ago', 2, 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&auto=format&fit=crop&q=80'),
   ];
 
   static const topLocations = <LocationStat>[
@@ -219,13 +226,13 @@ class MockData {
 
 
   static const users = <AppUser>[
-    AppUser(name: 'Ava Thompson', email: 'ava.t@mail.com', gender: 'Female', age: 26, status: 'Active', joined: 'Jul 28, 2026', likes: 482, downvotes: 6, karma: 96, dailyRank: 1, profileId: 'RO-100482', phone: '+1 415 555 0182', mode: 'Dating', karmaHistory: [78, 82, 85, 88, 90, 93, 96]),
-    AppUser(name: 'Liam Carter', email: 'liam.c@mail.com', gender: 'Male', age: 29, status: 'Active', joined: 'Jul 27, 2026', likes: 411, downvotes: 12, karma: 89, dailyRank: 2, profileId: 'RO-100411', phone: '+1 415 555 0119', mode: 'Both', karmaHistory: [70, 74, 77, 80, 83, 86, 89]),
-    AppUser(name: 'Sofia Rossi', email: 'sofia.r@mail.com', gender: 'Female', age: 24, status: 'Pending', joined: 'Jul 26, 2026', likes: 356, downvotes: 4, karma: 93, dailyRank: 3, profileId: 'RO-100356', phone: '+39 351 555 0344', mode: 'Dating', karmaHistory: [80, 84, 86, 88, 90, 91, 93]),
-    AppUser(name: 'Noah Williams', email: 'noah.w@mail.com', gender: 'Male', age: 31, status: 'Active', joined: 'Jul 25, 2026', likes: 298, downvotes: 21, karma: 74, dailyRank: 4, profileId: 'RO-100298', phone: '+1 212 555 0173', mode: 'Friends', karmaHistory: [60, 63, 66, 69, 71, 72, 74]),
-    AppUser(name: 'Mia Chen', email: 'mia.c@mail.com', gender: 'Female', age: 27, status: 'Suspended', joined: 'Jul 22, 2026', likes: 145, downvotes: 38, karma: 41, dailyRank: 6, profileId: 'RO-100145', phone: '+1 628 555 0221', mode: 'Dating', karmaHistory: [58, 54, 50, 47, 45, 43, 41]),
-    AppUser(name: 'Ethan Brooks', email: 'ethan.b@mail.com', gender: 'Male', age: 28, status: 'Active', joined: 'Jul 20, 2026', likes: 264, downvotes: 9, karma: 87, dailyRank: 5, profileId: 'RO-100264', phone: '+1 646 555 0167', mode: 'Both', karmaHistory: [72, 76, 79, 81, 83, 85, 87]),
-    AppUser(name: 'Isabella Kim', email: 'isabella.k@mail.com', gender: 'Female', age: 23, status: 'Active', joined: 'Jul 18, 2026', likes: 203, downvotes: 7, karma: 91, dailyRank: 7, profileId: 'RO-100203', phone: '+1 917 555 0198', mode: 'Friends', karmaHistory: [79, 82, 84, 86, 88, 90, 91]),
+    AppUser(name: 'Ava Thompson', email: 'ava.t@mail.com', gender: 'Female', age: 26, status: 'Active', joined: 'Jul 28, 2026', likes: 482, downvotes: 6, karma: 96, dailyRank: 1, profileId: 'RO-100482', phone: '+1 415 555 0182', mode: 'Dating', karmaHistory: [78, 82, 85, 88, 90, 93, 96], avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format&fit=crop&q=80'),
+    AppUser(name: 'Liam Carter', email: 'liam.c@mail.com', gender: 'Male', age: 29, status: 'Active', joined: 'Jul 27, 2026', likes: 411, downvotes: 12, karma: 89, dailyRank: 2, profileId: 'RO-100411', phone: '+1 415 555 0119', mode: 'Both', karmaHistory: [70, 74, 77, 80, 83, 86, 89], avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop&q=80'),
+    AppUser(name: 'Sofia Rossi', email: 'sofia.r@mail.com', gender: 'Female', age: 24, status: 'Pending', joined: 'Jul 26, 2026', likes: 356, downvotes: 4, karma: 93, dailyRank: 3, profileId: 'RO-100356', phone: '+39 351 555 0344', mode: 'Dating', karmaHistory: [80, 84, 86, 88, 90, 91, 93], avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80'),
+    AppUser(name: 'Noah Williams', email: 'noah.w@mail.com', gender: 'Male', age: 31, status: 'Active', joined: 'Jul 25, 2026', likes: 298, downvotes: 21, karma: 74, dailyRank: 4, profileId: 'RO-100298', phone: '+1 212 555 0173', mode: 'Friends', karmaHistory: [60, 63, 66, 69, 71, 72, 74], avatarUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&auto=format&fit=crop&q=80'),
+    AppUser(name: 'Mia Chen', email: 'mia.c@mail.com', gender: 'Female', age: 27, status: 'Suspended', joined: 'Jul 22, 2026', likes: 145, downvotes: 38, karma: 41, dailyRank: 6, profileId: 'RO-100145', phone: '+1 628 555 0221', mode: 'Dating', karmaHistory: [58, 54, 50, 47, 45, 43, 41], avatarUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&auto=format&fit=crop&q=80'),
+    AppUser(name: 'Ethan Brooks', email: 'ethan.b@mail.com', gender: 'Male', age: 28, status: 'Active', joined: 'Jul 20, 2026', likes: 264, downvotes: 9, karma: 87, dailyRank: 5, profileId: 'RO-100264', phone: '+1 646 555 0167', mode: 'Both', karmaHistory: [72, 76, 79, 81, 83, 85, 87], avatarUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&auto=format&fit=crop&q=80'),
+    AppUser(name: 'Isabella Kim', email: 'isabella.k@mail.com', gender: 'Female', age: 23, status: 'Active', joined: 'Jul 18, 2026', likes: 203, downvotes: 7, karma: 91, dailyRank: 7, profileId: 'RO-100203', phone: '+1 917 555 0198', mode: 'Friends', karmaHistory: [79, 82, 84, 86, 88, 90, 91], avatarUrl: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&auto=format&fit=crop&q=80'),
   ];
 
   static const reports = <ReportRecord>[
@@ -238,10 +245,38 @@ class MockData {
   ];
 
   static const verifications = <VerificationRecord>[
-    VerificationRecord(id: 1, name: 'Jacob Jones', submittedAgo: '2h ago', profileIdLabel: 'RO-100901'),
-    VerificationRecord(id: 2, name: 'Isabella Clark', submittedAgo: '5h ago', profileIdLabel: 'RO-100902'),
-    VerificationRecord(id: 3, name: 'Mason White', submittedAgo: '8h ago', profileIdLabel: 'RO-100903'),
-    VerificationRecord(id: 4, name: 'Charlotte Brown', submittedAgo: '12h ago', profileIdLabel: 'RO-100904'),
+    VerificationRecord(
+      id: 1,
+      name: 'Jacob Jones',
+      submittedAgo: '2h ago',
+      profileIdLabel: 'RO-100901',
+      profilePhotoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&auto=format&fit=crop&q=80',
+      selfieUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80',
+    ),
+    VerificationRecord(
+      id: 2,
+      name: 'Isabella Clark',
+      submittedAgo: '5h ago',
+      profileIdLabel: 'RO-100902',
+      profilePhotoUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&auto=format&fit=crop&q=80',
+      selfieUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80',
+    ),
+    VerificationRecord(
+      id: 3,
+      name: 'Mason White',
+      submittedAgo: '8h ago',
+      profileIdLabel: 'RO-100903',
+      profilePhotoUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=600&auto=format&fit=crop&q=80',
+      selfieUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&auto=format&fit=crop&q=80',
+    ),
+    VerificationRecord(
+      id: 4,
+      name: 'Charlotte Brown',
+      submittedAgo: '12h ago',
+      profileIdLabel: 'RO-100904',
+      profilePhotoUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600&auto=format&fit=crop&q=80',
+      selfieUrl: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600&auto=format&fit=crop&q=80',
+    ),
   ];
 
   static const tickets = <TicketRecord>[
